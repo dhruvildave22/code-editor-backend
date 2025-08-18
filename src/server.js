@@ -1,5 +1,5 @@
 const app = require('./app');
-const { knex } = require('./db/knex');
+const knex = require('./db/knex');
 require('dotenv').config();
 
 const port = Number(process.env.PORT || 5555);
