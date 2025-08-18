@@ -4,8 +4,8 @@ const zodErrorMiddleware = (err, req, res, next) => {
       error: 'Validation error',
       details: err.errors.map(error => ({
         path: error.path.join('.'),
-        message: error.message
-      }))
+        message: error.message,
+      })),
     });
   }
   next(err);

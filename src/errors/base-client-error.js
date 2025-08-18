@@ -22,14 +22,18 @@ class BaseClientError extends Error {
    */
   constructor(message, statusCode, contentType, errorCode) {
     super(message);
-    
+
     if (this.constructor === BaseClientError) {
-      throw new TypeError('Direct instantiation of abstract class not allowed.');
+      throw new TypeError(
+        'Direct instantiation of abstract class not allowed.'
+      );
     }
 
     this.statusCode = parseInt(statusCode, 10);
     if (this.statusCode < 400 || this.statusCode > 499) {
-      throw new Error(`Illegal Argument: statusCode must be 4xx, but received ${statusCode}`);
+      throw new Error(
+        `Illegal Argument: statusCode must be 4xx, but received ${statusCode}`
+      );
     }
 
     this.contentType = contentType ?? 'application/json';

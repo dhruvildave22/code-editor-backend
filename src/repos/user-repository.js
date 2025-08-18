@@ -8,9 +8,7 @@ class UserRepository {
   }
 
   async create(userData) {
-    const [user] = await knex('users')
-      .insert(userData)
-      .returning('*');
+    const [user] = await knex('users').insert(userData).returning('*');
     return new User(user);
   }
 

@@ -16,7 +16,9 @@ class ServerError extends Error {
     this.code = 'SERVER_ERROR';
 
     if (this.statusCode < 500 || this.statusCode > 599) {
-      throw new Error(`Illegal Argument: statusCode must be 5xx, but received ${statusCode}`);
+      throw new Error(
+        `Illegal Argument: statusCode must be 5xx, but received ${statusCode}`
+      );
     }
   }
 }

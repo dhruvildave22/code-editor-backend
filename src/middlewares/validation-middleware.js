@@ -1,11 +1,11 @@
 const { ZodError } = require('zod');
 
-const validate = (schema) => {
+const validate = schema => {
   return (req, res, next) => {
     try {
       // Zod parse throws an error if validation fails
       const validatedData = schema.parse(req.body);
-      
+
       // Replace req.body with validated data
       req.body = validatedData;
       next();
@@ -14,22 +14,22 @@ const validate = (schema) => {
       if (error instanceof ZodError) {
         const issues = error.issues || error.errors || [];
         if (issues.length > 0) {
-          return res.status(400).json({ 
+          return res.status(400).json({
             error: issues[0].message,
-            details: issues
+            details: issues,
           });
         } else {
-          return res.status(400).json({ 
+          return res.status(400).json({
             error: 'Validation failed',
-            details: error.message || 'Unknown validation error'
+            details: error.message || 'Unknown validation error',
           });
         }
       }
-      
+
       // Handle other errors
       console.error('Non-Zod validation error:', error);
-      return res.status(500).json({ 
-        error: 'Internal server error' 
+      return res.status(500).json({
+        error: 'Internal server error',
       });
     }
   };

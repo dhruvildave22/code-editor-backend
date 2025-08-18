@@ -11,7 +11,7 @@ async function registerUser(req, res, next) {
     if (err instanceof BaseClientError) {
       return next(err);
     }
-    
+
     // Handle legacy error messages for backward compatibility
     if (err.message === 'Email already registered') {
       return res.status(409).json({ error: err.message });
@@ -33,7 +33,7 @@ async function loginUser(req, res, next) {
     if (err instanceof BaseClientError) {
       return next(err);
     }
-    
+
     // Handle legacy error messages for backward compatibility
     if (err.message === 'Invalid credentials') {
       return res.status(401).json({ error: err.message });

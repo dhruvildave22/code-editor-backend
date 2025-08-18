@@ -1,14 +1,24 @@
 {
   "name": "code-exam-backend",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "A Node.js REST API backend for a code examination platform",
+  "main": "src/server.js",
+  "engines": {
+    "node": ">=20.0.0",
+    "npm": ">=9.0.0"
+  },
   "scripts": {
     "dev": "nodemon src/server.js",
     "start": "node src/server.js",
     "migrate": "knex --knexfile knexfile.js migrate:latest",
     "rollback": "knex --knexfile knexfile.js migrate:rollback",
-    "seed": "knex --knexfile knexfile.js seed:run"
+    "seed": "knex --knexfile knexfile.js seed:run",
+    "lint": "eslint src/",
+    "lint:fix": "eslint src/ --fix",
+    "format": "prettier --write src/",
+    "format:check": "prettier --check src/",
+    "prepare": "husky",
+    "pre-commit": "lint-staged"
   },
   "keywords": [],
   "author": "",
@@ -24,6 +34,19 @@
     "zod": "^4.0.17"
   },
   "devDependencies": {
-    "nodemon": "^3.1.10"
+    "@eslint/js": "^9.33.0",
+    "eslint": "^9.33.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-prettier": "^5.5.4",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.1.5",
+    "nodemon": "^3.1.10",
+    "prettier": "^3.6.2"
+  },
+  "lint-staged": {
+    "src/**/*.js": [
+      "eslint --fix",
+      "prettier --write"
+    ]
   }
 }

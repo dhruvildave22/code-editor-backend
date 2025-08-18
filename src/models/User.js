@@ -1,6 +1,14 @@
 // User model definition
 class User {
-  constructor({ id, email, password_hash, role, active, created_at, updated_at }) {
+  constructor({
+    id,
+    email,
+    password_hash,
+    role,
+    active,
+    created_at,
+    updated_at,
+  }) {
     this.id = id;
     this.email = email;
     this.password_hash = password_hash;

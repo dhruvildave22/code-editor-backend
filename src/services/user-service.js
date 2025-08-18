@@ -1,8 +1,11 @@
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const UserRepository = require('../repos/user-repository');
-const User = require('../models/User');
-const { ConflictError, UnauthorizedError, BadRequestError } = require('../errors');
+const {
+  ConflictError,
+  UnauthorizedError,
+  BadRequestError,
+} = require('../errors');
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your_jwt_secret';
 const JWT_EXPIRES_IN = '1h';
@@ -13,18 +16,21 @@ class UserService {
     if (!['admin', 'candidate'].includes(role)) {
       throw new BadRequestError('Invalid user type', 'INVALID_USER_TYPE');
     }
-    
+
     const existingUser = await UserRepository.findByEmail(email);
     if (existingUser) {
-      throw new ConflictError('Email already registered', 'EMAIL_ALREADY_EXISTS');
+      throw new ConflictError(
+        'Email already registered',
+        'EMAIL_ALREADY_EXISTS'
+      );
     }
-    
+
     const password_hash = await bcrypt.hash(password, SALT_ROUNDS);
     const user = await UserRepository.create({
       email,
       password_hash,
       role,
-      active: true
+      active: true,
     });
     return user;
   }
@@ -34,17 +40,17 @@ class UserService {
     if (!user || !user.active) {
       throw new UnauthorizedError('Invalid credentials', 'INVALID_CREDENTIALS');
     }
-    
+
     const valid = await bcrypt.compare(password, user.password_hash);
     if (!valid) {
       throw new UnauthorizedError('Invalid credentials', 'INVALID_CREDENTIALS');
     }
-    
+
     const token = jwt.sign(
       {
         sub: user.id,
         email: user.email,
-        role: user.role
+        role: user.role,
       },
       JWT_SECRET,
       { expiresIn: JWT_EXPIRES_IN }

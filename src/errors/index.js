@@ -16,7 +16,7 @@ module.exports = {
   // Base Classes
   BaseClientError,
   ServerError,
-  
+
   // Client Errors
   BadRequestError,
   UnauthorizedError,

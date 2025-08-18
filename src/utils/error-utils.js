@@ -7,7 +7,7 @@ const {
   NotFoundError,
   ConflictError,
   ValidationError,
-  ServerError
+  ServerError,
 } = require('../errors');
 
 /**
@@ -50,7 +50,10 @@ class ErrorUtils {
   }
 
   static userAlreadyExists() {
-    throw new ConflictError('User with this email already exists', 'USER_ALREADY_EXISTS');
+    throw new ConflictError(
+      'User with this email already exists',
+      'USER_ALREADY_EXISTS'
+    );
   }
 
   static invalidCredentials() {
