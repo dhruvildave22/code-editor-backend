@@ -17,6 +17,7 @@ src/
 ├── routes/            # API route definitions
 ├── middlewares/       # Custom middleware functions
 ├── validations/       # Request validation schemas
+├── errors/            # Custom error classes
 ├── db/                # Database configuration
 └── utils/             # Utility functions
 ```
@@ -116,8 +117,20 @@ src/
 │   ├── error-handler.js     # Global error handling
 │   ├── validation-middleware.js # Request validation
 │   └── zodError.js          # Zod error handling
+├── errors/
+│   ├── base-client-error.js # Base class for 4xx errors
+│   ├── bad-request-error.js # 400 Bad Request errors
+│   ├── unauthorized-error.js # 401 Unauthorized errors
+│   ├── forbidden-error.js   # 403 Forbidden errors
+│   ├── not-found-error.js   # 404 Not Found errors
+│   ├── conflict-error.js    # 409 Conflict errors
+│   ├── validation-error.js  # 422 Validation errors
+│   ├── server-error.js      # 5xx Server errors
+│   └── index.js            # Error exports
 ├── validations/
 │   └── user-validation.js    # User validation schemas
+├── utils/
+│   └── error-utils.js       # Error utility functions
 └── db/
     └── knex.js              # Database configuration
 ```
@@ -194,12 +207,103 @@ The project includes a `docker-compose.yml` for local development:
 
 ## 🚨 Error Handling
 
-The application implements comprehensive error handling:
+The application implements a comprehensive custom error handling system with structured error responses:
 
-1. **Validation Errors**: 400 status with detailed field errors
-2. **Authentication Errors**: 401 status for invalid credentials
-3. **Conflict Errors**: 409 status for duplicate resources
-4. **Server Errors**: 500 status for unexpected errors
+### **Custom Error Classes**
+
+The application uses custom error classes for consistent error handling:
+
+#### **Client Errors (4xx)**
+- **BadRequestError (400)**: Invalid request data
+- **UnauthorizedError (401)**: Authentication required or failed
+- **ForbiddenError (403)**: Access denied to resource
+- **NotFoundError (404)**: Resource not found
+- **ConflictError (409)**: Resource already exists or conflicts
+- **ValidationError (422)**: Request validation failed
+
+#### **Server Errors (5xx)**
+- **ServerError (500+)**: Internal server errors
+
+### **Error Response Format**
+
+All errors return consistent JSON responses:
+
+```json
+{
+  "error": "Human readable error message",
+  "code": "ERROR_TYPE_CODE",
+  "errorCode": "SPECIFIC_ERROR_CODE"
+}
+```
+
+**Example responses:**
+
+```json
+// Validation Error
+{
+  "error": "Invalid email format",
+  "details": [
+    {
+      "path": ["email"],
+      "message": "Invalid email format"
+    }
+  ]
+}
+
+// Conflict Error
+{
+  "error": "Email already registered",
+  "code": "CONFLICT_ERROR",
+  "errorCode": "EMAIL_ALREADY_EXISTS"
+}
+
+// Authentication Error
+{
+  "error": "Invalid credentials",
+  "code": "UNAUTHORIZED_ERROR",
+  "errorCode": "INVALID_CREDENTIALS"
+}
+```
+
+### **Error Handling Flow**
+
+1. **Custom Errors**: Thrown by services using specific error classes
+2. **Validation Errors**: Caught by Zod validation middleware
+3. **Database Errors**: Handled for common PostgreSQL constraints
+4. **JWT Errors**: Token validation and expiration handling
+5. **Global Handler**: Catches unhandled errors and returns 500
+
+### **Common Error Codes**
+
+| Error Code | HTTP Status | Description |
+|------------|-------------|-------------|
+| `EMAIL_ALREADY_EXISTS` | 409 | User registration with existing email |
+| `INVALID_CREDENTIALS` | 401 | Login with wrong email/password |
+| `INVALID_USER_TYPE` | 400 | Invalid role in registration |
+| `USER_NOT_FOUND` | 404 | User lookup failed |
+| `VALIDATION_ERROR` | 400/422 | Request validation failed |
+| `INVALID_TOKEN` | 401 | JWT token invalid or expired |
+| `ACCESS_DENIED` | 403 | Insufficient permissions |
+
+### **Using Custom Errors in Development**
+
+When developing new features, use the custom error classes for consistent error handling:
+
+```javascript
+// Import errors
+const { ConflictError, NotFoundError, BadRequestError } = require('../errors');
+
+// Throw specific errors
+throw new ConflictError('Resource already exists', 'RESOURCE_EXISTS');
+throw new NotFoundError('User not found', 'USER_NOT_FOUND');
+throw new BadRequestError('Invalid input', 'INVALID_INPUT');
+
+// Or use error utilities
+const ErrorUtils = require('../utils/error-utils');
+ErrorUtils.userNotFound();
+ErrorUtils.emailAlreadyExists();
+ErrorUtils.invalidCredentials();
+```
 
 ## 🔒 Security Features
 
