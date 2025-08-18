@@ -1,11 +1,9 @@
 const UserService = require('../services/user-service');
-const { registerSchema, loginSchema } = require('../validations/user-validation');
 
 async function registerUser(req, res, next) {
   try {
-    const { error, value } = registerSchema.validate(req.body);
-    if (error) return res.status(400).json({ error: error.details[0].message });
-    const user = await UserService.register(value);
+    const { body } = req
+    const user = await UserService.register(body);
     res.status(201).json({ message: 'User registered successfully', user });
   } catch (err) {
     if (err.message === 'Email already registered') {
@@ -20,9 +18,8 @@ async function registerUser(req, res, next) {
 
 async function loginUser(req, res, next) {
   try {
-    const { error, value } = loginSchema.validate(req.body);
-    if (error) return res.status(400).json({ error: error.details[0].message });
-    const result = await UserService.authenticate(value);
+    const { body } = req
+    const result = await UserService.authenticate(body);
     res.json(result);
   } catch (err) {
     if (err.message === 'Invalid credentials') {

@@ -10,4 +10,4 @@ const knex = knexFn({
 
 Model.knex(knex);
 
-module.exports = { knex };
+module.exports = knex;

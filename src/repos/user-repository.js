@@ -1,4 +1,4 @@
-const knex = require('../../db/knex');
+const knex = require('../db/knex');
 const User = require('../models/User');
 
 class UserRepository {
