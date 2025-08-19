@@ -53,11 +53,17 @@ src/
    PORT=5555
    JWT_SECRET=dev-dev-dev
    ```
-
+   
 4. **Start the database**
    ```bash
    docker compose up -d
    ```
+   
+   💡 **Note (macOS DNS issue):**  
+   If you face DNS resolution issues while pulling Docker images, try updating your DNS settings:
+   
+   - Go to **System Settings > Network > Advanced > DNS**
+   - Add `1.1.1.1` (Cloudflare DNS)
 
 5. **Run database migrations**
    ```bash
