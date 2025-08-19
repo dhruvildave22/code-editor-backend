@@ -32,6 +32,10 @@ exports.up = async function(knex) {
  * @param { import("knex").Knex } knex
  * @returns { Promise<void> }
  */
-exports.down = async function(knex) {
+exports.down = async function (knex) {
+  // Drop users table first (since it depends on the role enum)
   await knex.schema.dropTableIfExists('users');
+
+  // Then drop enum type
+  await knex.raw('DROP TYPE IF EXISTS role;');
 };
