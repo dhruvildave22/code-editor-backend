@@ -46,11 +46,12 @@ src/
 3. **Environment Setup**
    Create a `.env` file in the root directory:
    ```env
-   DATABASE_URL=postgresql://postgres:password@localhost:5433/codeexam
-   JWT_SECRET=your-super-secret-jwt-key-here
-   JWT_EXPIRES_IN=1h
-   NODE_ENV=development
+   POSTGRES_USER=dev
+   POSTGRES_PASSWORD=devpass
+   POSTGRES_DB=code_exam
+   DATABASE_URL=postgres://dev:devpass@localhost:5433/code_exam
    PORT=5555
+   JWT_SECRET=dev-dev-dev
    ```
 
 4. **Start the database**
