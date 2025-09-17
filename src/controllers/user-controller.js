@@ -42,7 +42,31 @@ async function loginUser(req, res, next) {
   }
 }
 
+async function createUser(req, res, next) {
+  try {
+    const { body } = req;
+    body.role = req.params.roleType;
+    const user = await UserService.register(body);
+    res.status(201).json({ message: 'User registered successfully', user });
+  } catch (err) {
+    // If it's a custom client error, let the error handler deal with it
+    if (err instanceof BaseClientError) {
+      return next(err);
+    }
+
+    // Handle legacy error messages for backward compatibility
+    if (err.message === 'Email already registered') {
+      return res.status(409).json({ error: err.message });
+    }
+    if (err.message === 'Invalid user type') {
+      return res.status(400).json({ error: err.message });
+    }
+    next(err);
+  }
+}
+
 module.exports = {
   registerUser,
   loginUser,
+  createUser,
 };
