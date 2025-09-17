@@ -2,26 +2,29 @@
  * @param { import("knex").Knex } knex
  * @returns { Promise<void> }
  */
-exports.up = async function(knex) {
+exports.up = async function (knex) {
   // Create ENUM type for role if it doesn't exist
   await knex.raw(`
     DO $$ 
     BEGIN
       IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'role') THEN
-        CREATE TYPE role AS ENUM ('admin', 'candidate');
+        CREATE TYPE role AS ENUM ('admin', 'candidate', 'moderator');
       END IF;
     END $$;
   `);
 
   // Create users table
-  return knex.schema.createTable('users', function(table) {
+  return knex.schema.createTable('users', function (table) {
     table.uuid('id').primary().defaultTo(knex.raw('uuid_generate_v4()'));
     table.string('email').notNullable().unique(); // Email as username
     table.string('password_hash').notNullable();
-    table.enu('role', ['admin', 'candidate'], {
-      useNative: true,
-      enumName: 'role',
-    }).notNullable();
+    table
+      .enu('role', ['admin', 'candidate', 'moderator'], {
+        useNative: true,
+        enumName: 'role',
+        existingType: true,
+      })
+      .notNullable();
     table.boolean('active').notNullable().defaultTo(true); // User active status
     table.timestamp('created_at').defaultTo(knex.fn.now());
     table.timestamp('updated_at').defaultTo(knex.fn.now());
