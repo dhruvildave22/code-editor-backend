@@ -1,12 +1,11 @@
-const { ROLES } = require('../constants/roles');
 const {
   registerUser,
   loginUser,
   createCandidateUser,
 } = require('../controllers/user-controller');
 const {
-  authenticateToken,
-  authorize,
+  authenticate,
+  moderatorAuth,
 } = require('../middlewares/auth-middleware');
 const validate = require('../middlewares/validation-middleware');
 const {
@@ -20,8 +19,8 @@ module.exports = app => {
   app.post('/api/users/login', validate(loginSchema), loginUser);
   app.post(
     '/api/users/candidate',
-    authenticateToken,
-    authorize(ROLES.MODERATOR),
+    authenticate,
+    moderatorAuth,
     validate(createCandidateSchema),
     createCandidateUser
   );

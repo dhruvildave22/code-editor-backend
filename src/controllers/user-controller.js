@@ -46,7 +46,7 @@ async function createCandidateUser(req, res, next) {
   try {
     const { body } = req;
     const user = await UserService.createCandidate(body);
-    res.status(201).json({ message: 'User registered successfully', user });
+    res.status(201).json({ message: 'Candidate created successfully', user });
   } catch (err) {
     if (err instanceof BaseClientError) {
       return next(err);
