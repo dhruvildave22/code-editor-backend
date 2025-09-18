@@ -53,7 +53,6 @@ async function createCandidateUser(req, res, next) {
       return next(err);
     }
 
-    // Handle legacy error messages for backward compatibility
     if (err.message === 'Email already registered') {
       throw new ConflictError(
         'Email already registered',
