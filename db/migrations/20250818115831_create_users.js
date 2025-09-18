@@ -8,7 +8,7 @@ exports.up = async function (knex) {
     DO $$ 
     BEGIN
       IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'role') THEN
-        CREATE TYPE role AS ENUM ('admin', 'candidate');
+        CREATE TYPE role AS ENUM ('admin', 'candidate', 'moderator');
       END IF;
     END $$;
   `);
@@ -21,10 +21,10 @@ exports.up = async function (knex) {
     table.string('email').notNullable().unique(); // Email as username
     table.string('password_hash').notNullable();
     table
-      .enu('role', ['admin', 'candidate'], {
+      .enu('role', ['admin', 'candidate', 'moderator'], {
         useNative: true,
         enumName: 'role',
-        existingType: true, // if role type already exists use existing one
+        existingType: true,
       })
       .notNullable();
     table.boolean('active').notNullable().defaultTo(true); // User active status
