@@ -17,8 +17,9 @@ const loginSchema = z.object({
   password: z.string().min(1, 'Password is required'),
 });
 
-const createCandidateSchema = z.object({
-  body: registerSchema.omit({ role: true, password: true }),
+const createCandidateSchema = registerSchema.omit({
+  role: true,
+  password: true,
 });
 
 module.exports = {
