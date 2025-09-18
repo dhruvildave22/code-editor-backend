@@ -1,6 +1,6 @@
 const { ZodError } = require('zod');
 
-const validateUser = schema => {
+const validateCandidateUser = schema => {
   return async (req, res, next) => {
     try {
       // 1. Validate first
@@ -41,5 +41,5 @@ const validateUser = schema => {
 };
 
 module.exports = {
-  validateUser,
+  validateCandidateUser,
 };
