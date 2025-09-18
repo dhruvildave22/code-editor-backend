@@ -16,6 +16,8 @@ exports.up = async function (knex) {
   // Create users table
   return knex.schema.createTable('users', function (table) {
     table.uuid('id').primary().defaultTo(knex.raw('uuid_generate_v4()'));
+    table.string('first_name').notNullable();
+    table.string('last_name').notNullable();
     table.string('email').notNullable().unique(); // Email as username
     table.string('password_hash').notNullable();
     table
