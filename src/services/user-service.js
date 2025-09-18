@@ -13,7 +13,7 @@ const SALT_ROUNDS = 10;
 
 class UserService {
   async register({ email, password, role }) {
-    if (!['admin', 'candidate'].includes(role)) {
+    if (!['admin', 'candidate', 'moderator'].includes(role)) {
       throw new BadRequestError('Invalid user type', 'INVALID_USER_TYPE');
     }
 
