@@ -3,8 +3,6 @@ const {
   loginUser,
   createCandidateUser,
 } = require('../controllers/user-controller');
-const { authorize } = require('../middlewares/auth-middleware');
-const { validateCandidateUser } = require('../middlewares/users');
 const validate = require('../middlewares/validation-middleware');
 const {
   registerSchema,
@@ -17,8 +15,7 @@ module.exports = app => {
   app.post('/api/users/login', validate(loginSchema), loginUser);
   app.post(
     '/api/users/candidate',
-    authorize(['admin']),
-    validateCandidateUser(createCandidateSchema),
+    validate(createCandidateSchema),
     createCandidateUser
   );
 };

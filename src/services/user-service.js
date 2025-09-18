@@ -60,7 +60,7 @@ class UserService {
     return { token, role: user.role };
   }
 
-  async createCandidate({ email, password, firstName, lastName }) {
+  async createCandidate({ email, firstName, lastName }) {
     const existingUser = await UserRepository.findByEmail(email);
     if (existingUser) {
       throw new ConflictError(
@@ -69,7 +69,7 @@ class UserService {
       );
     }
 
-    const password_hash = await bcrypt.hash(password, SALT_ROUNDS);
+    const password_hash = await bcrypt.hash('candidate@123', SALT_ROUNDS);
     const user = await UserRepository.create({
       email,
       password_hash,

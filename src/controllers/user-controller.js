@@ -1,5 +1,5 @@
 const UserService = require('../services/user-service');
-const { BaseClientError, ConflictError } = require('../errors');
+const { BaseClientError } = require('../errors');
 
 async function registerUser(req, res, next) {
   try {
@@ -48,16 +48,8 @@ async function createCandidateUser(req, res, next) {
     const user = await UserService.createCandidate(body);
     res.status(201).json({ message: 'User registered successfully', user });
   } catch (err) {
-    // If it's a custom client error, let the error handler deal with it
     if (err instanceof BaseClientError) {
       return next(err);
-    }
-
-    if (err.message === 'Email already registered') {
-      throw new ConflictError(
-        'Email already registered',
-        'EMAIL_ALREADY_EXISTS'
-      );
     }
     next(err);
   }
