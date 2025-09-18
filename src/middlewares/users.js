@@ -3,11 +3,13 @@ const { ZodError } = require('zod');
 const validateCandidateUser = schema => {
   return async (req, res, next) => {
     try {
+      const { body, params } = req;
       // 1. Validate first
       const validatedData = schema.parse({
-        body: { ...req.body, password: 'temporary-password' }, // Temporarily set password to first_name for validation
-        params: req.params,
+        body,
+        params,
       });
+      validatedData.body.password = 'candidate@123';
 
       // 2. Put cleaned values back
       req.body = validatedData.body;
@@ -33,6 +35,7 @@ const validateCandidateUser = schema => {
 
       // Handle other errors
       console.error('Non-Zod validation error:', error);
+
       return res.status(500).json({
         error: 'Internal server error',
       });
