@@ -1,5 +1,8 @@
 const UserService = require('../services/user-service');
 const { BaseClientError } = require('../errors');
+const xlsx = require('xlsx');
+const fs = require('fs');
+const { createCandidateSchema } = require('../validations/user-validation');
 
 async function registerUser(req, res, next) {
   try {
@@ -55,8 +58,68 @@ async function createCandidateUser(req, res, next) {
   }
 }
 
+async function createCandidatesFromExcel(req, res, next) {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ message: 'Excel file is required' });
+    }
+
+    const workbook = xlsx.readFile(req.file.path);
+    const sheetName = workbook.SheetNames[0];
+    const sheetData = xlsx.utils.sheet_to_json(workbook.Sheets[sheetName]);
+
+    const results = [];
+
+    for (const row of sheetData) {
+      try {
+        const validated = createCandidateSchema.parse({
+          firstName: row['First Name'],
+          lastName: row['Last Name'],
+          email: row['Email'],
+        });
+
+        const user = await UserService.createCandidate(validated);
+
+        results.push({ success: true, user });
+      } catch (err) {
+        if (err.name === 'ZodError') {
+          const issues = err.issues || err.errors || [];
+          results.push({
+            success: false,
+            error: issues.length > 0 ? issues[0].message : 'Validation failed',
+            details: issues,
+            row,
+          });
+        } else {
+          results.push({
+            success: false,
+            error: err.message || 'Unknown error',
+            row,
+          });
+        }
+      }
+    }
+
+    fs.unlinkSync(req.file.path);
+
+    res.status(201).json({
+      message: 'Excel processed',
+      results,
+    });
+  } catch (err) {
+    if (req.file) {
+      fs.unlinkSync(req.file.path);
+    }
+    if (err instanceof BaseClientError) {
+      return next(err);
+    }
+    next(err);
+  }
+}
+
 module.exports = {
   registerUser,
   loginUser,
   createCandidateUser,
+  createCandidatesFromExcel,
 };
