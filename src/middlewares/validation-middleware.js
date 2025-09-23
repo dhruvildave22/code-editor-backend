@@ -3,10 +3,7 @@ const { ZodError } = require('zod');
 const validate = schema => {
   return (req, res, next) => {
     try {
-      // Zod parse throws an error if validation fails
       const validatedData = schema.parse(req.body);
-
-      // Replace req.body with validated data
       req.body = validatedData;
       next();
     } catch (error) {

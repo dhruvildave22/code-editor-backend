@@ -1,6 +1,7 @@
 const {
   registerUser,
   loginUser,
+  createCandidatesFromSheet,
   createCandidate,
 } = require('../controllers/user-controller');
 const {
@@ -12,7 +13,11 @@ const {
   registerSchema,
   loginSchema,
   createCandidateSchema,
+  bulkCandidateCreateSchema,
 } = require('../validations/user-validation');
+const {
+  validateCandidateFile,
+} = require('../middlewares/validation-bulk-candidate');
 
 module.exports = app => {
   app.post('/api/users/register', validate(registerSchema), registerUser);
@@ -23,5 +28,12 @@ module.exports = app => {
     adminOrModeratorAuth,
     validate(createCandidateSchema),
     createCandidate
+  );
+  app.post(
+    '/api/users/candidates/bulk',
+    authenticate,
+    adminOrModeratorAuth,
+    validateCandidateFile(bulkCandidateCreateSchema),
+    createCandidatesFromSheet
   );
 };

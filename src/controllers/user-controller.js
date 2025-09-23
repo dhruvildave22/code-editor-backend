@@ -1,5 +1,6 @@
 const UserService = require('../services/user-service');
 const { BaseClientError } = require('../errors');
+const { exportXlsxOrCsv } = require('../utils/sheet-utils');
 
 async function registerUser(req, res, next) {
   try {
@@ -53,7 +54,50 @@ async function createCandidate(req, res, next) {
     if (err instanceof BaseClientError) {
       return next(err);
     }
+    next(err);
+  }
+}
 
+async function createCandidatesFromSheet(req, res, next) {
+  try {
+    const validRows = [];
+    const invalidRows = [];
+
+    for (const row of req.validatedRows) {
+      if (row.isValid) {
+        try {
+          const user = await UserService.createCandidate(row);
+          if (!user) {
+            throw new Error('User creation failed');
+          }
+          validRows.push({ success: true, user });
+        } catch (err) {
+          invalidRows.push({
+            ...row.originalRow,
+            Error: err.message || 'User creation failed',
+          });
+        }
+      } else {
+        const inValidRecord = { ...row };
+        delete inValidRecord.isValid;
+        invalidRows.push(inValidRecord);
+      }
+    }
+
+    let invalidFilePath = null;
+
+    if (invalidRows.length > 0) {
+      invalidFilePath = exportXlsxOrCsv(invalidRows, req.file.originalname);
+    }
+
+    res.status(201).json({
+      message: 'Excel processed',
+      total: req.validatedRows.length,
+      created: validRows.length,
+      failed: invalidRows.length,
+      invalidFile: invalidFilePath ? `/${invalidFilePath}` : null,
+    });
+  } catch (err) {
     next(err);
   }
 }
@@ -62,4 +106,5 @@ module.exports = {
   registerUser,
   loginUser,
   createCandidate,
+  createCandidatesFromSheet,
 };

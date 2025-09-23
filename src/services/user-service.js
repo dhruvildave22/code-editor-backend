@@ -12,8 +12,9 @@ const JWT_EXPIRES_IN = '1h';
 const SALT_ROUNDS = 10;
 
 class UserService {
-  async register({ email, password, role }) {
-    if (!['admin', 'candidate', 'moderator'].includes(role)) {
+  async register(payload) {
+    const { email, password, role, firstName, lastName } = payload;
+    if (!['candidate', 'moderator'].includes(role)) {
       throw new BadRequestError('Invalid user type', 'INVALID_USER_TYPE');
     }
 
@@ -30,6 +31,8 @@ class UserService {
       email,
       password_hash,
       role,
+      first_name: firstName,
+      last_name: lastName,
       active: true,
     });
     return user;
@@ -75,8 +78,8 @@ class UserService {
       email,
       password_hash: passwordHash,
       role: 'candidate',
-      firstName,
-      lastName,
+      first_name: firstName,
+      last_name: lastName,
       active: true,
     });
     return { candidate, tempPassword };
