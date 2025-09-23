@@ -42,7 +42,24 @@ async function loginUser(req, res, next) {
   }
 }
 
+async function createCandidate(req, res, next) {
+  try {
+    const { body } = req;
+    const candidate = await UserService.createCandidate(body);
+    res
+      .status(201)
+      .json({ message: 'Candidate created successfully', candidate });
+  } catch (err) {
+    if (err instanceof BaseClientError) {
+      return next(err);
+    }
+
+    next(err);
+  }
+}
+
 module.exports = {
   registerUser,
   loginUser,
+  createCandidate,
 };
