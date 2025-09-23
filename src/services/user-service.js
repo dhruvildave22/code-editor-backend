@@ -36,6 +36,7 @@ class UserService {
       email,
       'Welcome Moderator',
       {
+        firstName,
         email,
         temporaryPassword,
       },
@@ -95,6 +96,7 @@ class UserService {
       email,
       'Welcome Candidate',
       {
+        firstName,
         email,
         temporaryPassword,
       },
