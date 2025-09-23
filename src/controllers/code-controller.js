@@ -2,7 +2,6 @@ const {
   executeCode: executeCodeService,
   SUPPORTED_LANGUAGES,
 } = require('../services/code-execution-service');
-const { ValidationError } = require('../errors');
 
 /**
  * Execute code in various programming languages and return the output
@@ -10,18 +9,6 @@ const { ValidationError } = require('../errors');
 const executeCode = async (req, res, next) => {
   try {
     const { code, language } = req.body;
-
-    if (!code || typeof code !== 'string') {
-      throw new ValidationError('Code is required and must be a string');
-    }
-
-    if (code.trim().length === 0) {
-      throw new ValidationError('Code cannot be empty');
-    }
-
-    if (!language || typeof language !== 'string') {
-      throw new ValidationError('Language is required and must be a string');
-    }
 
     // Execute the code
     const result = await executeCodeService(code, language.toLowerCase());
