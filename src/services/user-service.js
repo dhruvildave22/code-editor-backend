@@ -78,8 +78,8 @@ class UserService {
       email,
       password_hash: passwordHash,
       role: 'candidate',
-      firstName,
-      lastName,
+      first_name: firstName,
+      last_name: lastName,
       active: true,
     });
     return { candidate, tempPassword };

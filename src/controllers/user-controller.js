@@ -1,8 +1,6 @@
 const UserService = require('../services/user-service');
 const { BaseClientError } = require('../errors');
-const xlsx = require('xlsx');
-const fs = require('fs');
-const { createCandidateSchema } = require('../validations/user-validation');
+const { exportXlsxOrCsv } = require('../utils/sheet-utils');
 
 async function registerUser(req, res, next) {
   try {
@@ -60,62 +58,46 @@ async function createCandidate(req, res, next) {
   }
 }
 
-async function createCandidatesFromExcel(req, res, next) {
+async function createCandidatesFromSheet(req, res, next) {
   try {
-    if (!req.file) {
-      return res.status(400).json({ message: 'Excel file is required' });
-    }
+    const validRows = [];
+    const invalidRows = [];
 
-    const workbook = xlsx.readFile(req.file.path);
-    const sheetName = workbook.SheetNames[0];
-    const sheetData = xlsx.utils.sheet_to_json(workbook.Sheets[sheetName]);
-
-    const results = [];
-
-    for (const row of sheetData) {
-      try {
-        const validated = createCandidateSchema.parse({
-          firstName: row['First Name'],
-          lastName: row['Last Name'],
-          email: row['Email'],
-        });
-
-        const user = await UserService.createCandidate(validated);
-
-        results.push({ success: true, user });
-      } catch (err) {
-        if (err.name === 'ZodError') {
-          const issues = err.issues || err.errors || [];
-          results.push({
-            success: false,
-            error: issues.length > 0 ? issues[0].message : 'Validation failed',
-            details: issues,
-            row,
-          });
-        } else {
-          results.push({
-            success: false,
-            error: err.message || 'Unknown error',
-            row,
+    for (const row of req.validatedRows) {
+      if (row.isValid) {
+        try {
+          const user = await UserService.createCandidate(row);
+          if (!user) {
+            throw new Error('User creation failed');
+          }
+          validRows.push({ success: true, user });
+        } catch (err) {
+          invalidRows.push({
+            ...row.originalRow,
+            Error: err.message || 'User creation failed',
           });
         }
+      } else {
+        const inValidRecord = { ...row };
+        delete inValidRecord.isValid;
+        invalidRows.push(inValidRecord);
       }
     }
 
-    fs.unlinkSync(req.file.path);
+    let invalidFilePath = null;
+
+    if (invalidRows.length > 0) {
+      invalidFilePath = exportXlsxOrCsv(invalidRows, req.file.originalname);
+    }
 
     res.status(201).json({
       message: 'Excel processed',
-      results,
+      total: req.validatedRows.length,
+      created: validRows.length,
+      failed: invalidRows.length,
+      invalidFile: invalidFilePath ? `/${invalidFilePath}` : null,
     });
   } catch (err) {
-    if (req.file) {
-      fs.unlinkSync(req.file.path);
-    }
-    if (err instanceof BaseClientError) {
-      return next(err);
-    }
-
     next(err);
   }
 }
@@ -124,5 +106,5 @@ module.exports = {
   registerUser,
   loginUser,
   createCandidate,
-  createCandidatesFromExcel,
+  createCandidatesFromSheet,
 };

@@ -1,20 +1,23 @@
 const {
   registerUser,
   loginUser,
-  createCandidatesFromExcel,
-  authenticate,
-  moderatorAuth,
+  createCandidatesFromSheet,
   createCandidate,
 } = require('../controllers/user-controller');
-const { adminOrModeratorAuth } = require('../middlewares/auth-middleware');
+const {
+  authenticate,
+  adminOrModeratorAuth,
+} = require('../middlewares/auth-middleware');
 const validate = require('../middlewares/validation-middleware');
 const {
   registerSchema,
   loginSchema,
   createCandidateSchema,
+  bulkCandidateCreateSchema,
 } = require('../validations/user-validation');
-const multer = require('multer');
-const upload = multer({ dest: 'uploads/' });
+const {
+  validateCandidateFile,
+} = require('../middlewares/validation-bulk-candidate');
 
 module.exports = app => {
   app.post('/api/users/register', validate(registerSchema), registerUser);
@@ -27,10 +30,10 @@ module.exports = app => {
     createCandidate
   );
   app.post(
-    '/api/users/candidate/bulk',
+    '/api/users/candidates/bulk',
     authenticate,
-    moderatorAuth,
-    upload.single('file'),
-    createCandidatesFromExcel
+    adminOrModeratorAuth,
+    validateCandidateFile(bulkCandidateCreateSchema),
+    createCandidatesFromSheet
   );
 };
