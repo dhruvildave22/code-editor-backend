@@ -1,4 +1,5 @@
 const jwt = require('jsonwebtoken');
+const { ROLES } = require('../constants/roles');
 const JWT_SECRET = process.env.JWT_SECRET || 'your_jwt_secret';
 
 function authenticate(req, res, next) {
@@ -18,19 +19,32 @@ function authenticate(req, res, next) {
   }
 }
 
-function authorize(allowedTypes = []) {
+function authorize(...allowedRoles) {
   return (req, res, next) => {
-    if (
-      !req.user ||
-      (allowedTypes.length && !allowedTypes.includes(req.user.role))
-    ) {
-      return res.status(403).json({ error: 'Forbidden' });
+    if (!req.user) {
+      return res.status(401).json({ message: 'Unauthorized' });
     }
+
+    if (!allowedRoles.includes(req.user.role)) {
+      return res.status(403).json({ message: 'Forbidden' });
+    }
+
     next();
   };
 }
 
+const adminAuth = authorize(ROLES.ADMIN);
+const moderatorAuth = authorize(ROLES.MODERATOR);
+const candidateAuth = authorize(ROLES.CANDIDATE);
+const adminOrModeratorAuth = authorize(ROLES.ADMIN, ROLES.MODERATOR);
+const allRolesAuth = authorize(ROLES.ADMIN, ROLES.MODERATOR, ROLES.CANDIDATE);
+
 module.exports = {
   authenticate,
   authorize,
+  adminAuth,
+  moderatorAuth,
+  candidateAuth,
+  adminOrModeratorAuth,
+  allRolesAuth,
 };

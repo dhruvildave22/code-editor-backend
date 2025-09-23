@@ -52,6 +52,8 @@ src/
    DATABASE_URL=postgres://dev:devpass@localhost:5433/code_exam
    PORT=5555
    JWT_SECRET=dev-dev-dev
+   ADMIN_EMAIL=admin@example.com
+   ADMIN_PASSWORD=admin1234
    ```
    
 4. **Start the database**
