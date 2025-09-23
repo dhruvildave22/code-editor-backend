@@ -21,23 +21,8 @@ const createCandidateSchema = z.object({
   email: z.email('Invalid email format'),
 });
 
-// Schema for bulk candidate creation via CSV
-const bulkCreateCandidatesSchema = z.object({
-  candidates: z
-    .array(
-      z.object({
-        firstName: z.string().min(1, 'First name is required'),
-        lastName: z.string().min(1, 'Last name is required'),
-        email: z.string().email('Invalid email format'),
-      })
-    )
-    .min(1, 'At least one candidate is required')
-    .max(1000, 'Cannot process more than 1000 candidates at once'),
-});
-
 module.exports = {
   registerSchema,
   loginSchema,
   createCandidateSchema,
-  bulkCreateCandidatesSchema,
 };
