@@ -45,11 +45,13 @@ async function loginUser(req, res, next) {
   }
 }
 
-async function createCandidateUser(req, res, next) {
+async function createCandidate(req, res, next) {
   try {
     const { body } = req;
-    const user = await UserService.createCandidate(body);
-    res.status(201).json({ message: 'Candidate created successfully', user });
+    const candidate = await UserService.createCandidate(body);
+    res
+      .status(201)
+      .json({ message: 'Candidate created successfully', candidate });
   } catch (err) {
     if (err instanceof BaseClientError) {
       return next(err);
@@ -113,6 +115,7 @@ async function createCandidatesFromExcel(req, res, next) {
     if (err instanceof BaseClientError) {
       return next(err);
     }
+
     next(err);
   }
 }
@@ -120,6 +123,6 @@ async function createCandidatesFromExcel(req, res, next) {
 module.exports = {
   registerUser,
   loginUser,
-  createCandidateUser,
+  createCandidate,
   createCandidatesFromExcel,
 };

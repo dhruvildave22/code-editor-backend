@@ -1,13 +1,12 @@
 const {
   registerUser,
   loginUser,
-  createCandidateUser,
   createCandidatesFromExcel,
-} = require('../controllers/user-controller');
-const {
   authenticate,
   moderatorAuth,
-} = require('../middlewares/auth-middleware');
+  createCandidate,
+} = require('../controllers/user-controller');
+const { adminOrModeratorAuth } = require('../middlewares/auth-middleware');
 const validate = require('../middlewares/validation-middleware');
 const {
   registerSchema,
@@ -21,11 +20,11 @@ module.exports = app => {
   app.post('/api/users/register', validate(registerSchema), registerUser);
   app.post('/api/users/login', validate(loginSchema), loginUser);
   app.post(
-    '/api/users/candidate',
+    '/api/users/candidates',
     authenticate,
-    moderatorAuth,
+    adminOrModeratorAuth,
     validate(createCandidateSchema),
-    createCandidateUser
+    createCandidate
   );
   app.post(
     '/api/users/candidate/bulk',
