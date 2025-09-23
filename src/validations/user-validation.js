@@ -1,13 +1,9 @@
 const { z } = require('zod');
 
-const registerSchema = z.object({
+const moderatorSchema = z.object({
   email: z.string().email('Invalid email format'),
-  password: z.string().min(8, 'Password must be at least 8 characters'),
-  role: z.enum(['admin', 'candidate', 'moderator'], {
-    errorMap: () => ({
-      message: 'Role must be either admin, candidate or moderator',
-    }),
-  }),
+  first_name: z.string().min(4, 'First name is required'),
+  last_name: z.string().min(4, 'Last name is required'),
 });
 
 const loginSchema = z.object({
@@ -16,6 +12,6 @@ const loginSchema = z.object({
 });
 
 module.exports = {
-  registerSchema,
+  moderatorSchema,
   loginSchema,
 };

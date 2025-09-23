@@ -6,13 +6,14 @@ const {
   UnauthorizedError,
   BadRequestError,
 } = require('../errors');
+const sendEmail = require('../utils/email/sendEmail');
+const { generateTemporaryPasswordHash } = require('../utils/passwords');
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your_jwt_secret';
 const JWT_EXPIRES_IN = '1h';
-const SALT_ROUNDS = 10;
 
 class UserService {
-  async register({ email, password, role }) {
+  async register({ email, role, first_name, last_name }) {
     if (!['admin', 'candidate', 'moderator'].includes(role)) {
       throw new BadRequestError('Invalid user type', 'INVALID_USER_TYPE');
     }
@@ -25,13 +26,28 @@ class UserService {
       );
     }
 
-    const password_hash = await bcrypt.hash(password, SALT_ROUNDS);
+    const { password: temporaryPassword, hash: password_hash } =
+      await generateTemporaryPasswordHash();
+
     const user = await UserRepository.create({
+      first_name,
+      last_name,
       email,
       password_hash,
       role,
-      active: true,
+      active: false,
     });
+
+    sendEmail(
+      email,
+      'New Account created',
+      {
+        email,
+        temporaryPassword,
+      },
+      './template/welcome.handlebars'
+    );
+
     return user;
   }
 
