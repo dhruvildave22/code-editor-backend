@@ -38,7 +38,7 @@ const sendEmail = async (email, subject, payload, template) => {
       }
     });
   } catch (error) {
-    return error;
+    throw error;
   }
 };
 
