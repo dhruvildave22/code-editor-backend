@@ -1,22 +1,17 @@
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const UserRepository = require('../repos/user-repository');
-const {
-  ConflictError,
-  UnauthorizedError,
-  BadRequestError,
-} = require('../errors');
+const { ConflictError, UnauthorizedError } = require('../errors');
+const sendEmail = require('../utils/email/sendEmail');
+const { generateTemporaryPasswordHash } = require('../utils/passwords');
+const { ROLES } = require('../constants/roles');
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your_jwt_secret';
 const JWT_EXPIRES_IN = '1h';
-const SALT_ROUNDS = 10;
 
 class UserService {
-  async register({ email, password, role }) {
-    if (!['admin', 'candidate', 'moderator'].includes(role)) {
-      throw new BadRequestError('Invalid user type', 'INVALID_USER_TYPE');
-    }
-
+  async createModerator(payload) {
+    const { firstName, lastName, email } = payload;
     const existingUser = await UserRepository.findByEmail(email);
     if (existingUser) {
       throw new ConflictError(
@@ -25,13 +20,29 @@ class UserService {
       );
     }
 
-    const password_hash = await bcrypt.hash(password, SALT_ROUNDS);
+    const { password: temporaryPassword, hash: password_hash } =
+      await generateTemporaryPasswordHash();
+
     const user = await UserRepository.create({
+      first_name: firstName,
+      last_name: lastName,
       email,
       password_hash,
-      role,
-      active: true,
+      role: ROLES.MODERATOR,
+      active: false,
     });
+
+    sendEmail(
+      email,
+      'Welcome Moderator',
+      {
+        firstName,
+        email,
+        temporaryPassword,
+      },
+      './template/welcome.handlebars'
+    );
+
     return user;
   }
 
@@ -69,17 +80,30 @@ class UserService {
       );
     }
 
-    const tempPassword = Math.random().toString(36).slice(-8);
-    const passwordHash = await bcrypt.hash(tempPassword, SALT_ROUNDS);
+    const { password: temporaryPassword, hash: passwordHash } =
+      await generateTemporaryPasswordHash();
+
     const candidate = await UserRepository.create({
       email,
       password_hash: passwordHash,
-      role: 'candidate',
-      firstName,
-      lastName,
-      active: true,
+      role: ROLES.CANDIDATE,
+      first_name: firstName,
+      last_name: lastName,
+      active: false,
     });
-    return { candidate, tempPassword };
+
+    sendEmail(
+      email,
+      'Welcome Candidate',
+      {
+        firstName,
+        email,
+        temporaryPassword,
+      },
+      './template/welcome.handlebars'
+    );
+
+    return candidate;
   }
 }
 
