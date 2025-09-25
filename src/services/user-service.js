@@ -57,6 +57,30 @@ class UserService {
     );
     return { token, role: user.role };
   }
+
+  async createCandidate(payload) {
+    const { email, firstName, lastName } = payload;
+
+    const existingUser = await UserRepository.findByEmail(email);
+    if (existingUser) {
+      throw new ConflictError(
+        'Email already registered',
+        'EMAIL_ALREADY_EXISTS'
+      );
+    }
+
+    const tempPassword = Math.random().toString(36).slice(-8);
+    const passwordHash = await bcrypt.hash(tempPassword, SALT_ROUNDS);
+    const candidate = await UserRepository.create({
+      email,
+      password_hash: passwordHash,
+      role: 'candidate',
+      firstName,
+      lastName,
+      active: true,
+    });
+    return { candidate, tempPassword };
+  }
 }
 
 module.exports = new UserService();
