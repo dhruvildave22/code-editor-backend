@@ -15,20 +15,23 @@ const {
   createModeratorSchema,
 } = require('../validations/user-validation');
 
-module.exports = app => {
-  app.post(
-    '/api/users/moderators',
-    authenticate,
-    adminAuth,
-    validate(createModeratorSchema),
-    createModerator
-  );
-  app.post('/api/users/login', validate(loginSchema), loginUser);
-  app.post(
-    '/api/users/candidates',
-    authenticate,
-    adminOrModeratorAuth,
-    validate(createCandidateSchema),
-    createCandidate
-  );
-};
+const express = require('express');
+const router = express.Router();
+
+router.post(
+  '/moderators',
+  authenticate,
+  adminAuth,
+  validate(createModeratorSchema),
+  createModerator
+);
+router.post('/login', validate(loginSchema), loginUser);
+router.post(
+  '/candidates',
+  authenticate,
+  adminOrModeratorAuth,
+  validate(createCandidateSchema),
+  createCandidate
+);
+
+module.exports = router;
