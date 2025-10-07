@@ -9,6 +9,7 @@ app.use(authStub); // replace with real auth later
 
 app.use('/health', healthRouter);
 require('./routes/user-routes')(app);
+require('./routes/code-routes')(app);
 
 app.use(zodErrorMiddleware);
 const errorHandler = require('./middlewares/error-handler');
